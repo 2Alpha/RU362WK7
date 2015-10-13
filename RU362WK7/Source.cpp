@@ -41,7 +41,10 @@ bool ask2LoadExistingData();
 
 int main()
 {
+	ask2LoadExistingData(); 
 
+	system("PAUSE");
+	return 0;
 }
 
 //*************************************************************************
@@ -149,13 +152,49 @@ bool ask2LoadExistingData()
 
 		else if (promt1Response == "Y")
 		{
-			ReadInputFile = true;
-			cin >> fileName2Load; 
+			
+			cout << endl; 
+			cout << "Plese enter the name of the File you wish you load: "; 
+			cin.clear();
+			getline(cin >> ws, fileName2Load);
+
+			ifstream inputFile1; // input file stream variable
+
+			inputFile1.open(fileName2Load, ios::binary | ios::in);
+			
+			do
+			{
+
+				if (!inputFile1)
+				{
+					//bool fileReadError = true 
+					inputFile1.clear();
+					cout << endl;
+					cerr << "Error! System could not open file named \"" << fileName2Load << "\"" << endl;
+					cerr << "Please Try again." << endl; 
+					cerr << endl; 
+
+				}
+
+				else
+				{
+					ReadInputFile = true;
+					cout << "Exisiting file named " << fileName2Load << " has been loaded" << endl;
+					//// link list stuff
+					inputFile1.close();
+				}
+
+
+			
+			} while (!inputFile1);
+
+
 		}
 
 
 		else if (promt1Response == "N")
 		{
+			ReadInputFile = false;
 			cout << "Okay, lets start fresh!" << endl;  
 		}
 
@@ -164,7 +203,10 @@ bool ask2LoadExistingData()
 	// loop if error detected flag equals true 
 	while (numOfErrors > 0);
 
-	return ReadInputFile;
+
+
+	//return ReadInputFile;
+	return true;
 
 
 }
