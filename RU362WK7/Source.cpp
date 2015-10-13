@@ -30,18 +30,39 @@ struct residence
 	string phoneNumber;
 	float monthlyRent;
 	bool rented;
+
+	residence * next;
 };
+
+
+
+bool nodeIsEmpty(residence * head)
+{
+	if (head == NULL)
+	{
+		return true;
+	}
+
+	else
+	{
+		return false;
+	}
+}
 
 
 const int IGNORE_AMOUNT = 100;
 
 string showAddDeleteExit();
 string convert2UpperCase(string stringInput);
-bool ask2LoadExistingData();
 
 int main()
 {
-	ask2LoadExistingData(); 
+	residence * topOfList = NULL;
+	residence * tempResidence = NULL;
+	residence *  residenceList = NULL;
+
+	ask2LoadExistingData (residenceList);
+	
 
 	system("PAUSE");
 	return 0;
@@ -126,12 +147,21 @@ string convert2UpperCase(string stringInput)
 
 }
 
-bool ask2LoadExistingData()
+residence * ask2LoadExistingData(residence* residenceList)
 {
 	string promt1Response;
 	string fileName2Load; 
 	int numOfErrors;
+	bool fileReadErorr;
 	bool ReadInputFile; 
+
+	//residence * next_ptr = NULL; 
+	//residence * previous_ptr = NULL;
+
+	residence * next_ptr = NULL;
+	residence * previous_ptr = NULL;
+	residence * tempResidence,
+			  * lastResidence = NULL;
 
 	do
 	{
@@ -153,40 +183,66 @@ bool ask2LoadExistingData()
 		else if (promt1Response == "Y")
 		{
 			
-			cout << endl; 
-			cout << "Plese enter the name of the File you wish you load: "; 
-			cin.clear();
-			getline(cin >> ws, fileName2Load);
-
-			ifstream inputFile1; // input file stream variable
-
-			inputFile1.open(fileName2Load, ios::binary | ios::in);
-			
+		
 			do
 			{
+				cout << endl;
+				cout << "Plese enter the name of the File you wish you load: ";
+				cin.clear();
+				getline(cin >> ws, fileName2Load);
+
+				ifstream inputFile1; // input file stream variable
+
+				//inputFile1.open(fileName2Load, ios::binary | ios::in);
+				inputFile1.open(fileName2Load.c_str());
 
 				if (!inputFile1)
 				{
-					//bool fileReadError = true 
+					fileReadErorr = true;
 					inputFile1.clear();
 					cout << endl;
 					cerr << "Error! System could not open file named \"" << fileName2Load << "\"" << endl;
-					cerr << "Please Try again." << endl; 
-					cerr << endl; 
+					cerr << "Please Try again." << endl;
+					cerr << endl;
 
 				}
 
 				else
 				{
-					ReadInputFile = true;
+					fileReadErorr = false;
 					cout << "Exisiting file named " << fileName2Load << " has been loaded" << endl;
 					//// link list stuff
-					inputFile1.close();
+
+					
+					while (!inputFile1.eof)
+					{
+						if (residenceList == NULL)
+						{
+							lastResidence = tempResidence;
+							residenceList = tempResidence;
+						}
+
+						else
+						{
+							lastNode->nextPat = tempNode;
+							lastNode = tempNode;
+						}
+						tempResidence = new residence;
+
+						inputFile1 >> tempResidence->phoneNumber;
+						inputFile1 >> tempResidence->monthlyRent;
+						inputFile1 >> tempResidence->rented;
+
+						tempResidence->next = NULL;
+						residenceList = tempResidence;
+					}
+
+					inputFile1.close(); 
 				}
 
 
-			
-			} while (!inputFile1);
+
+			} while (fileReadErorr == true);
 
 
 		}
@@ -204,9 +260,7 @@ bool ask2LoadExistingData()
 	while (numOfErrors > 0);
 
 
-
-	//return ReadInputFile;
-	return true;
+	return residenceList;
 
 
 }
