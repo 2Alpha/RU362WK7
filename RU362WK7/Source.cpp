@@ -36,29 +36,19 @@ struct residence
 
 
 
-bool nodeIsEmpty(residence * head)
-{
-	if (head == NULL)
-	{
-		return true;
-	}
 
-	else
-	{
-		return false;
-	}
-}
 
 
 const int IGNORE_AMOUNT = 100;
 
 string showAddDeleteExit();
 string convert2UpperCase(string stringInput);
+residence * ask2LoadExistingData(residence* residenceList);
 
 int main()
 {
 	residence * topOfList = NULL;
-	residence * tempResidence = NULL;
+	residence *newResidence = NULL;
 	residence *  residenceList = NULL;
 
 	ask2LoadExistingData (residenceList);
@@ -150,18 +140,20 @@ string convert2UpperCase(string stringInput)
 residence * ask2LoadExistingData(residence* residenceList)
 {
 	string promt1Response;
-	string fileName2Load; 
+	string fileName2Load;
 	int numOfErrors;
 	bool fileReadErorr;
-	bool ReadInputFile; 
+	bool ReadInputFile;
 
-	//residence * next_ptr = NULL; 
-	//residence * previous_ptr = NULL;
+	string phoneNumber;
+	float monthlyRent;
+	bool rented;
 
-	residence * next_ptr = NULL;
-	residence * previous_ptr = NULL;
-	residence * tempResidence,
-			  * lastResidence = NULL;
+	residence	* newNode = NULL,
+				* topOfList = NULL,
+				* endOfList = NULL;
+
+	ifstream inputFile1; // input file stream variable
 
 	do
 	{
@@ -180,10 +172,14 @@ residence * ask2LoadExistingData(residence* residenceList)
 			numOfErrors++;
 		}
 
+		else if (promt1Response == "N")
+		{
+			ReadInputFile = false;
+			cout << "Okay, lets start fresh!" << endl;
+		}
+
 		else if (promt1Response == "Y")
 		{
-			
-		
 			do
 			{
 				cout << endl;
@@ -192,8 +188,6 @@ residence * ask2LoadExistingData(residence* residenceList)
 				getline(cin >> ws, fileName2Load);
 
 				ifstream inputFile1; // input file stream variable
-
-				//inputFile1.open(fileName2Load, ios::binary | ios::in);
 				inputFile1.open(fileName2Load.c_str());
 
 				if (!inputFile1)
@@ -204,63 +198,78 @@ residence * ask2LoadExistingData(residence* residenceList)
 					cerr << "Error! System could not open file named \"" << fileName2Load << "\"" << endl;
 					cerr << "Please Try again." << endl;
 					cerr << endl;
-
 				}
 
 				else
 				{
 					fileReadErorr = false;
 					cout << "Exisiting file named " << fileName2Load << " has been loaded" << endl;
-					//// link list stuff
 
-					
-					while (!inputFile1.eof)
+					do
 					{
-						if (residenceList == NULL)
-						{
-							lastResidence = tempResidence;
-							residenceList = tempResidence;
-						}
+						inputFile1 >> phoneNumber >> monthlyRent >> rented;   // Read one line of data
 
-						else
-						{
-							lastNode->nextPat = tempNode;
-							lastNode = tempNode;
-						}
-						tempResidence = new residence;
+						if (inputFile1)
+						{                  // Was able to read data
 
-						inputFile1 >> tempResidence->phoneNumber;
-						inputFile1 >> tempResidence->monthlyRent;
-						inputFile1 >> tempResidence->rented;
+							newNode = new (nothrow) residence;    // Allocate new node space
 
-						tempResidence->next = NULL;
-						residenceList = tempResidence;
-					}
+							if (newNode == NULL)
+							{
+								cout << "Heap error - could not allocate memory" << endl;
+								system("pause");
+							}
 
-					inputFile1.close(); 
-				}
+							else
+							{                        // Memory allocated put data into new node
+								newNode->phoneNumber = phoneNumber;
+								newNode->monthlyRent = monthlyRent;
+								newNode->rented = rented;
+								newNode->next = NULL;
+
+								// Insert new node into the list
+								if (topOfList == NULL)			// If list is empty...
+								{
+									endOfList = newNode;          // point both pointers to new node 
+									topOfList = newNode;
+								}
+
+								else
+								{								// If list is not empty...
+									endOfList->next = newNode;    // Point Next ptr in last to new node
+									endOfList = newNode;          // and also point last to new node
+								}
+
+							}   // end else where newNode != NULL
+
+						}   // end if (inFile)
+
+					} while ((inputFile1) && (newNode != NULL));
 
 
+				}//good 
 
 			} while (fileReadErorr == true);
 
-
 		}
 
 
-		else if (promt1Response == "N")
-		{
-			ReadInputFile = false;
-			cout << "Okay, lets start fresh!" << endl;  
-		}
+	} while (numOfErrors > 0);
 
-	}
+	/////////////
+	residence *here = topOfList;
+	while (here != NULL) {                // while not at end of list… 
 
-	// loop if error detected flag equals true 
-	while (numOfErrors > 0);
+                      // Increment count 
+
+		cout << here->phoneNumber << endl;    // Print name in node pointed 
+									   // to by here pointer 
+
+		here = here->next;             // Move here pointer to point 
+									   // to the next node in list 
+	} // end while 
 
 
-	return residenceList;
 
-
+	return 0;
 }
