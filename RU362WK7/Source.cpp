@@ -44,11 +44,13 @@ const float  MAX_RENT = 999999;		// Max rental price - this was not specified
 
 string showAddDelModExit();
 string convert2UpperCase(string stringInput);
-void ask2LoadExistingData(residence *& topOfList);
+void ask2LoadExistingData(residence *& topOfList, residence *& endOfList);
 
 void showRentals(string MainMenuChoice, residence *& topOfList, residence *& endOfList);
 void AddRentals2Array(string MainMenuChoice, residence *& topOfList, residence *& endOfList);
 string GetPhoneNumber();
+float GetMonthlyRent();
+bool GetRentalStatus();
 
 int main()
 {
@@ -57,7 +59,7 @@ int main()
 
 	string MainMenuChoice;
 
-	ask2LoadExistingData(topOfList);
+	ask2LoadExistingData(topOfList,endOfList);
 
 	do
 	{
@@ -153,7 +155,7 @@ string convert2UpperCase(string stringInput)
 
 }
 
-void ask2LoadExistingData(residence *& topOfList)
+void ask2LoadExistingData(residence *& topOfList, residence *& endOfList)
 {
 	string promt1Response;
 	string fileName2Load;
@@ -165,9 +167,7 @@ void ask2LoadExistingData(residence *& topOfList)
 	float monthlyRent;
 	bool rented;
 
-	residence	* newNode = NULL,
-				//* topOfList = NULL,
-				* endOfList = NULL;
+	residence	* newNode = NULL;
 
 	ifstream inputFile1; // input file stream variable
 
@@ -318,7 +318,6 @@ void AddRentals2Array(string MainMenuChoice, residence *& topOfList, residence *
 	if (MainMenuChoice == "A")
 	{
 		residence * newNode = NULL;
-		string validPhoneNumber;
 		
 		cout << "You selected Add Rental to array" << endl;
 		cout << "There are 3 steps to complete this entry, see below for instructions " << endl;
@@ -327,7 +326,10 @@ void AddRentals2Array(string MainMenuChoice, residence *& topOfList, residence *
 		cout << "Step 3. Enter the Rental Status as Y = yes, N = No" << endl;
 		cout << endl;
 		
-		validPhoneNumber = GetPhoneNumber();
+		string validPhoneNumber = GetPhoneNumber();
+		float monthlyRent = GetMonthlyRent();
+		bool rentalStatus = GetRentalStatus();
+		
 
 		cout << "got NUmber" << endl; 
 
@@ -342,8 +344,8 @@ void AddRentals2Array(string MainMenuChoice, residence *& topOfList, residence *
 		else
 		{                        // Memory allocated put data into new node
 			newNode->phoneNumber = validPhoneNumber;
-			newNode->monthlyRent = 1111;
-			newNode->rented = 0;
+			newNode->monthlyRent = monthlyRent;
+			newNode->rented = rentalStatus;
 			newNode->next = NULL;
 
 			// Insert new node into the list
@@ -373,6 +375,15 @@ void AddRentals2Array(string MainMenuChoice, residence *& topOfList, residence *
 
 	}
 }
+
+//*************************************************************************
+//  FUNCTION:	  GetPhoneNumber
+//  DESCRIPTION:  Stores the entered phone number specifically in the format ###-###-####
+//
+//  INPUT:        Parameters:  None
+//
+//  OUTPUT: 	  Return value: string phoneNumber - Phone Number 
+//*************************************************************************
 string GetPhoneNumber()
 {
 	string phoneNumber;					// Phone Number 
@@ -474,4 +485,97 @@ string GetPhoneNumber()
 
 	return phoneNumber;
 
+}
+
+//*************************************************************************
+//  FUNCTION:	  GetMonthlyRent
+//  DESCRIPTION:  Stores the entered amount for monthly rent
+//
+//  INPUT:        Parameters:  None
+//
+//  OUTPUT: 	  Return value: float monthlyRent - Monthly Rent 
+//*************************************************************************
+float GetMonthlyRent()
+{
+	int errorCounter;								// Error Counter 
+	float monthlyRent;								// Monthly Rent
+
+	do
+	{
+		int i = 0;
+		errorCounter = 0;
+		cout << endl;
+		cout << "Step 2. Enter the Monthly Rent : ";
+		cin >> monthlyRent;
+
+		if ((cin.fail()) || (monthlyRent > MAX_RENT))
+
+		{
+			cin.clear();
+			cin.ignore(999, '\n');
+			errorCounter++;
+			cout << "Error! you did not enter a number between 0 and " << MAX_RENT << " Try again." << endl;
+		}
+
+	}
+
+	// while error counter is greater than zero 
+	while (errorCounter > 0);
+
+	return monthlyRent;
+
+}
+
+//*************************************************************************
+//  FUNCTION:	  GetRentalStatus
+//  DESCRIPTION:  Stores the entered amoount for rental status (available or rented)
+//
+//  INPUT:        Parameters:  None
+//
+//  OUTPUT: 	  Return value: bool  rentalStatusInBool - Rental Status in boolean 
+//*************************************************************************
+bool GetRentalStatus()
+{
+	bool repeatQuestion;				// Repeat Question 
+	bool rentalStatusInBool;			// Rental Status in boolean 
+	string rentalStatusResponse;
+
+	do
+	{
+
+		cout << endl;
+		cout << "Step 3. Is the apartment currently rented? Y = yes, N = No" << endl;
+		cin >> rentalStatusResponse;
+
+		rentalStatusResponse = convert2UpperCase(rentalStatusResponse);
+
+		if ((rentalStatusResponse != "Y") && (rentalStatusResponse != "N"))
+		{
+			cout << endl;
+			cout << "ERROR! Unrecognized input, please try again." << endl;
+			cout << endl;
+			repeatQuestion = true;
+		}
+
+
+		else if (rentalStatusResponse == "Y")
+		{
+			repeatQuestion = false;
+			rentalStatusInBool = true;
+		}
+
+
+
+		else if (rentalStatusResponse == "N")
+		{
+			repeatQuestion = false;
+			rentalStatusInBool = false;
+		}
+	}
+
+
+	// while repeat question equals true
+	while (repeatQuestion == true);
+
+	return rentalStatusInBool;
 }
