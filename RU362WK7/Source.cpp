@@ -48,6 +48,11 @@ void ask2LoadExistingData(residence *& topOfList, residence *& endOfList);
 
 void showRentals(string MainMenuChoice, residence *& topOfList, residence *& endOfList);
 void AddRentals2Array(string MainMenuChoice, residence *& topOfList, residence *& endOfList);
+void deleteARental(string MainMenuChoice, residence *& topOfList, residence *& endOfList);
+void modifyRental(string MainMenuChoice, residence *& topOfList, residence *& endOfList);
+
+void displayAptPhoneNumbers(residence *& topOfList);
+
 string GetPhoneNumber();
 float GetMonthlyRent();
 bool GetRentalStatus();
@@ -65,8 +70,10 @@ int main()
 	{
 		MainMenuChoice = showAddDelModExit();
 
-		showRentals(MainMenuChoice, topOfList, endOfList);
-		AddRentals2Array(MainMenuChoice, topOfList, endOfList);
+		showRentals (MainMenuChoice, topOfList, endOfList);
+		AddRentals2Array (MainMenuChoice, topOfList, endOfList);
+		deleteARental (MainMenuChoice, topOfList, endOfList);
+		modifyRental(MainMenuChoice, topOfList, endOfList);
 	}
 	while (MainMenuChoice != "X");
 
@@ -331,8 +338,6 @@ void AddRentals2Array(string MainMenuChoice, residence *& topOfList, residence *
 		bool rentalStatus = GetRentalStatus();
 		
 
-		cout << "got NUmber" << endl; 
-
 		newNode = new (nothrow)residence;    // Allocate new node space
 
 		if (newNode == NULL)
@@ -365,11 +370,6 @@ void AddRentals2Array(string MainMenuChoice, residence *& topOfList, residence *
 
 
 
-
-
-
-
-	
 		cout << "Entry successfully added!" << endl << endl;
 		
 
@@ -545,6 +545,7 @@ bool GetRentalStatus()
 
 		cout << endl;
 		cout << "Step 3. Is the apartment currently rented? Y = yes, N = No" << endl;
+		cout << "Please enter your choice here : ";
 		cin >> rentalStatusResponse;
 
 		rentalStatusResponse = convert2UpperCase(rentalStatusResponse);
@@ -578,4 +579,138 @@ bool GetRentalStatus()
 	while (repeatQuestion == true);
 
 	return rentalStatusInBool;
+}
+
+void deleteARental(string MainMenuChoice, residence *& topOfList, residence *& endOfList)
+{
+	if (MainMenuChoice == "D")
+	{
+		string item2Delete;
+		residence *here;		// Node being checked
+		residence *prev;		// Node prior to node being checked
+		bool success = false;
+
+		if (topOfList == NULL)
+		{
+			cout << "Error! The list is empty." << endl; 
+			cout << "Therefore Renatals cannot be removed." << endl; 
+		}
+		
+		else
+		{
+			displayAptPhoneNumbers(topOfList);
+
+			do
+			{
+				item2Delete = GetPhoneNumber();
+
+				                        
+
+				if (topOfList->phoneNumber == item2Delete)		// If delName found in first node,
+				{        
+					here = topOfList;
+					topOfList = topOfList->next;		      //  Delete top item
+					delete here;
+					success = true;
+					cout << "Success! Apartment with phone number " << item2Delete << " has been deleted" << endl;
+				}
+
+				else // Not top item, so search..
+				{                                   
+
+					prev = topOfList;                      // Initialize prev and here to 
+					here = topOfList->next;                // first 2 nodes in list
+
+														 // Look for delName (while not end of list and name doesn't match)
+					while ((here != NULL) && (here->phoneNumber != item2Delete))
+					{
+						prev = here;               // move prev down one
+						here = here->next;         // move here down one
+					}
+
+					if (here != NULL) {               // If found, delete item from list
+						prev->next = here->next;
+						delete here;
+						success = true;
+						cout << "Success! Apartment with phone number " << item2Delete << " has been deleted" << endl; 
+					}
+					else
+					{// Otherwise, give error message
+						cout << "Error! Phone number " << item2Delete << " was not found within the list." << endl;
+						cout << "Please Try again" << endl;
+					}
+
+
+
+				}	// End else (not top Item)
+
+			} while (success == false);
+
+
+			return;
+
+
+		}
+	}
+
+}
+void displayAptPhoneNumbers(residence *& topOfList)
+{
+	cout << fixed << showpoint << setprecision(2);
+	cout << "Apartment Phone Numbers on file" << endl;
+	cout << "------------" << endl; 
+
+	residence *here = topOfList;
+	while (here != NULL) // while not at end of list… 
+	{
+
+		cout << here->phoneNumber << endl;     // Print phone number in node pointed  
+
+		here = here->next;             // Move here pointer to point 
+									   // to the next node in list 
+	} // end while 
+
+	cout << endl; 
+}
+
+void modifyRental(string MainMenuChoice, residence *& topOfList, residence *& endOfList)
+{
+	if (MainMenuChoice == "M")
+	{
+		ifstream modsFile; // input file stream variable
+		modsFile.open("MODS.txt");
+
+		string phoneNumber;
+		char plusOrMinus;
+		float byHowMuch;
+
+		if (!modsFile)
+		{
+			cout << "ERROR! could not open file named MODS.txt" << endl; 
+			cout << "Therefore no chnages were made to the list of rentals" << endl; 
+		}
+
+		else
+		{
+			do
+			{
+				modsFile >> phoneNumber >> plusOrMinus >> byHowMuch;
+
+				cout << fixed << showpoint << setprecision(2);
+				cout << "------------" << endl; 
+				cout << "Phone  : " << phoneNumber << endl; 
+				cout << "+ or - : " << plusOrMinus << endl;
+				cout << "bhm    : " << byHowMuch << endl;
+			}
+
+			while (modsFile);
+
+		}
+
+
+
+	}
+
+
+	 
 }

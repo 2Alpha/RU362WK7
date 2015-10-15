@@ -23,5 +23,8 @@
     <Text Include="RENTALS.txt">
       <Filter>Resource Files</Filter>
     </Text>
+    <Text Include="..\..\..\..\..\Desktop\MODS.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
   </ItemGroup>
 </Project>
