@@ -5,15 +5,20 @@
 //  DATE:        10/10/15
 //  CLASS/TERM:  CS362_X40_Data Structures - CU_CS362 - XIN_X40_15F8W1
 //  DESIGNER:	 Andrae Allen
-//  FUNCTIONS:	 main - reads values, performs calculations, & displays results
-//				 xxxxxxxxxxxxxxxxxx
-//				 xxxxxxxxxxxxxxxxxx 
-//				 xxxxxxxxxxxxxxxxxx
-//				 xxxxxxxxxxxxxxxxxx
-//				 xxxxxxxxxxxxxxxxxx
-//				 xxxxxxxxxxxxxxxxxx
-//				 xxxxxxxxxxxxxxxxxx
-//				 xxxxxxxxxxxxxxxxxx
+//  FUNCTIONS:	 main - Reads values, performs calculations, & displays results
+//				 showAddDelModExit - Shows menu options of show, add, delete, modify, or exit
+//				 convert2UpperCase -Converts all chars in a string to upper case 
+//				 ask2LoadExistingData - Asks user if they would like to load existing data 
+//				 showRentals - Displays a list of all rental data on file
+//				 AddRentals2Array - Adds an entry to the linked list of Rental units  
+//				 deleteARental - Deletes an entry from the linked list of Rental units 
+//				 modifyRental - Imports and executs file containing rental unit modification data 
+//				 exitProgram - Allows user to save data and or exit program 
+//				 displayAptPhoneNumbers - Displays a list of all rental phone numbers on file
+//				 GetPhoneNumber - Gets phone number via user input
+//				 GetMonthlyRent - Gets rent via user input
+//				 GetMonthlyRent - Gets rental status via user input
+//				 does_file_exist - Checks to see if file specified exists with home directory 
 //***************************************************************************
 
 #include <iostream> 
@@ -35,11 +40,19 @@ struct residence
 };
 
 
+const int IGNORE_AMOUNT = 999;
+const int PHONE_CHAR_LENGTH = 12;
+const int PHONE_CHAR_SECTION_1 = 3; 
+const int PHONE_CHAR_SECTION_2 = 4;
+const int PHONE_CHAR_SECTION_3 = 7;
+const int PHONE_CHAR_SECTION_4 = 8;
+const int PHONE_CHAR_SECTION_5 = 12;
 
+const int TXT_DOT_LOCATION = 4; 
+const int TXT_T1_LOCATION = 3; 
+const int TXT_X_LOCATION = 2;
+const int TXT_T2_LOCATION = 1;
 
-
-
-const int IGNORE_AMOUNT = 100;
 const float  MAX_RENT = 999999;		// Max rental price - this was not specified
 
 string showAddDelModExit();
@@ -48,21 +61,32 @@ void ask2LoadExistingData(residence *& topOfList, residence *& endOfList);
 
 void showRentals(string MainMenuChoice, residence *& topOfList, residence *& endOfList);
 void AddRentals2Array(string MainMenuChoice, residence *& topOfList, residence *& endOfList);
-void deleteARental(string MainMenuChoice, residence *& topOfList, residence *& endOfList);
+void deleteARental(string MainMenuChoice, residence *& topOfList);
 void modifyRental(string MainMenuChoice, residence *& topOfList, residence *& endOfList);
+void exitProgram(string MainMenuChoice, residence *& topOfList, residence *& endOfList);
 
 void displayAptPhoneNumbers(residence *& topOfList);
 
 string GetPhoneNumber();
 float GetMonthlyRent();
 bool GetRentalStatus();
+bool checkFileExt(string fileName2check);
+bool does_file_exist(string fileName);
 
+//**************************************************************************
+//  FUNCTION:       main
+//  DESCRIPTION:    Create and manipulate a linked list containing rental data 
+//  OUTPUT:	
+//  Return Value:	0 for success
+//  CALLS TO:	    ask2LoadExistingData, showAddDelModExit, showRentals, AddRentals2Array
+//					deleteARental, modifyRental, exitProgram
+//**************************************************************************
 int main()
 {
-	residence * topOfList = NULL;
-	residence * endOfList = NULL;
+	residence * topOfList = NULL;			// initializing first node in linked list
+	residence * endOfList = NULL;			// initializing last node in linked list
 
-	string MainMenuChoice;
+	string MainMenuChoice;					// Main menu choice
 
 	ask2LoadExistingData(topOfList,endOfList);
 
@@ -72,10 +96,11 @@ int main()
 
 		showRentals (MainMenuChoice, topOfList, endOfList);
 		AddRentals2Array (MainMenuChoice, topOfList, endOfList);
-		deleteARental (MainMenuChoice, topOfList, endOfList);
+		deleteARental (MainMenuChoice, topOfList);
 		modifyRental(MainMenuChoice, topOfList, endOfList);
+		exitProgram(MainMenuChoice, topOfList, endOfList);
 	}
-	while (MainMenuChoice != "X");
+	while (MainMenuChoice != "X");			// While user input not equal "X" 
 
 	system("PAUSE");
 	return 0;
@@ -132,6 +157,12 @@ string showAddDelModExit()
 
 }
 
+//**************************************************************************
+//  FUNCTION:       convert2UpperCase
+//  DESCRIPTION:    converts  string to upper case
+//  INPUT			Parameters - stringInput - string input
+//  OUTPUT:			upperCasedString - upper cased string
+//**************************************************************************
 string convert2UpperCase(string stringInput)
 {
 	int i = 0;  // variabel used for tracking index location in array
@@ -162,6 +193,14 @@ string convert2UpperCase(string stringInput)
 
 }
 
+//**************************************************************************
+//  FUNCTION:       ask2LoadExistingData
+//  DESCRIPTION:    Asks user if they would like to load existing data 
+//  INPUT			Parameters - topOfList - Top of linked List
+//							   - endOfList - End of linked list
+//
+//  OUTPUT:			Imports existing data into linked list 
+//**************************************************************************
 void ask2LoadExistingData(residence *& topOfList, residence *& endOfList)
 {
 	string promt1Response;
@@ -269,11 +308,12 @@ void ask2LoadExistingData(residence *& topOfList, residence *& endOfList)
 
 					} while ((inputFile1) && (newNode != NULL));
 
-
-				}//good 
+					
+				}
 
 			} while (fileReadErorr == true);
 
+			inputFile1.close();
 		}
 
 
@@ -282,20 +322,32 @@ void ask2LoadExistingData(residence *& topOfList, residence *& endOfList)
 
 }
 
+//**************************************************************************
+//  FUNCTION:       showRentals 
+//  DESCRIPTION:    Displays a list of all rental data on file 
+//  INPUT			Parameters - MainMenuChoice - Main Menu Choice
+//							   - topOfList - Top of linked List
+//							   - endOfList - End of linked list
+//
+//  Return:			None
+//**************************************************************************
 void showRentals(string MainMenuChoice, residence *& topOfList, residence *& endOfList)
 {
 	if (MainMenuChoice == "S")
 	{ 
-		cout << fixed << showpoint << setprecision(2);
-		cout << "Phone Nmmber" << setw(15) << " Monthly Rent" << setw(15)  << "Status      " << endl;
-		cout << "------------" << setw(15) << "-------------" << setw(15)  << "------------" << endl;
+		int widthValue = 15; 
+		int precisionAmount = 2;
+
+		cout << fixed << showpoint << setprecision(precisionAmount);
+		cout << "Phone Nmmber" << setw(widthValue) << " Monthly Rent" << setw(widthValue) << "Status      " << endl;
+		cout << "------------" << setw(widthValue) << "-------------" << setw(widthValue) << "------------" << endl;
 
 		residence *here = topOfList;
 		while (here != NULL) // while not at end of list… 
 		{                
 	
-			cout << here->phoneNumber << setw(15);    // Print phone number in node pointed 
-			cout << here->monthlyRent << setw(15);    // Print monthly in node pointed 
+			cout << here->phoneNumber << setw(widthValue);    // Print phone number in node pointed 
+			cout << here->monthlyRent << setw(widthValue);    // Print monthly in node pointed 
 
 			if (here->rented == 1)
 			{
@@ -320,6 +372,15 @@ void showRentals(string MainMenuChoice, residence *& topOfList, residence *& end
 
 }
 
+//**************************************************************************
+//  FUNCTION:       AddRentals2Array
+//  DESCRIPTION:    Adds an entry to the linked list of Rental units
+//  INPUT			Parameters - MainMenuChoice - Main Menu Choice
+//							   - topOfList - Top of linked List
+//							   - endOfList - End of linked list
+//
+//  Return:			None
+//**************************************************************************
 void AddRentals2Array(string MainMenuChoice, residence *& topOfList, residence *& endOfList)
 {
 	if (MainMenuChoice == "A")
@@ -390,7 +451,7 @@ string GetPhoneNumber()
 	int length;                         // Length of user input
 
 	int errorCounter;					// Error Counter
-
+	
 	do
 	{
 		int i = 0;
@@ -401,24 +462,24 @@ string GetPhoneNumber()
 
 		length = phoneNumber.length();
 
-		if (length < 12)
+		if (length < PHONE_CHAR_LENGTH)
 		{
 			cout << "The phone number you entered is too short" << endl;
 			cout << "Please follow the format \"###-###-####\" Try again." << endl;
 			errorCounter++;
 		}
 
-		else if (length > 12)
+		else if (length > PHONE_CHAR_LENGTH)
 		{
 			cout << "The phone number you entered is too long" << endl;
 			cout << "Please follow the format \"###-###-####\" Try again." << endl;
 			errorCounter++;
 		}
 
-		else if (length = 12)
+		else if (length = PHONE_CHAR_LENGTH)
 		{
 
-			for (int index = 0; index < 3; index++)         // Used Loops for error checking 
+			for (int index = 0; index < PHONE_CHAR_SECTION_1; index++)         // Used Loops for error checking 
 			{
 				if (!(isdigit(phoneNumber[index])))
 				{
@@ -430,7 +491,7 @@ string GetPhoneNumber()
 			}
 
 
-			for (int index = 3; index < 4; index++)         // Used Loops for error checking 
+			for (int index = PHONE_CHAR_SECTION_1; index < PHONE_CHAR_SECTION_2; index++)         // Used Loops for error checking 
 			{
 				if (phoneNumber[index] != '-')
 				{
@@ -440,7 +501,7 @@ string GetPhoneNumber()
 
 			}
 
-			for (int index = 4; index < 7; index++)         // Used Loops for error checking 
+			for (int index = PHONE_CHAR_SECTION_2; index < PHONE_CHAR_SECTION_3; index++)         // Used Loops for error checking 
 			{
 				if (!(isdigit(phoneNumber[index])))
 				{
@@ -450,7 +511,7 @@ string GetPhoneNumber()
 
 			}
 
-			for (int index = 7; index < 8; index++)         // Used Loops for error checking 
+			for (int index = PHONE_CHAR_SECTION_3; index < PHONE_CHAR_SECTION_4; index++)         // Used Loops for error checking 
 			{
 				if (phoneNumber[index] != '-')
 				{
@@ -460,7 +521,7 @@ string GetPhoneNumber()
 
 			}
 
-			for (int index = 8; index < 12; index++)         // Used Loops for error checking 
+			for (int index = PHONE_CHAR_SECTION_4; index < PHONE_CHAR_SECTION_5; index++)         // Used Loops for error checking 
 			{
 				if (!(isdigit(phoneNumber[index])))
 				{
@@ -472,7 +533,7 @@ string GetPhoneNumber()
 
 		} /// end else if
 
-		if ((length == 12) && (errorCounter > 0))
+		if ((length == PHONE_CHAR_LENGTH) && (errorCounter > 0))
 		{
 			cout << endl;
 			cout << "Error! You Enterd 12 characters, however not in the correct format." << endl;
@@ -512,7 +573,7 @@ float GetMonthlyRent()
 
 		{
 			cin.clear();
-			cin.ignore(999, '\n');
+			cin.ignore(IGNORE_AMOUNT, '\n');
 			errorCounter++;
 			cout << "Error! you did not enter a number between 0 and " << MAX_RENT << " Try again." << endl;
 		}
@@ -581,7 +642,14 @@ bool GetRentalStatus()
 	return rentalStatusInBool;
 }
 
-void deleteARental(string MainMenuChoice, residence *& topOfList, residence *& endOfList)
+//**************************************************************************
+//  FUNCTION:       deleteARental
+//  DESCRIPTION:    Deletes an entry from the linked list of Rental units 
+//  INPUT			Parameters - MainMenuChoice - Main Menu Choice
+//							   - topOfList - Top of linked List						
+//  Return:			None
+//**************************************************************************
+void deleteARental(string MainMenuChoice, residence *& topOfList)
 {
 	if (MainMenuChoice == "D")
 	{
@@ -656,7 +724,9 @@ void deleteARental(string MainMenuChoice, residence *& topOfList, residence *& e
 }
 void displayAptPhoneNumbers(residence *& topOfList)
 {
-	cout << fixed << showpoint << setprecision(2);
+	int precisionAmount = 2;
+	
+	cout << fixed << showpoint << setprecision(precisionAmount);
 	cout << "Apartment Phone Numbers on file" << endl;
 	cout << "------------" << endl; 
 
@@ -683,11 +753,14 @@ void modifyRental(string MainMenuChoice, residence *& topOfList, residence *& en
 		string phoneNumber;
 		char plusOrMinus;
 		float byHowMuch;
+		int  ModCounter = 0;
+		int widthValue = 20;
+		int precisionAmount = 2;
 
 		if (!modsFile)
 		{
-			cout << "ERROR! could not open file named MODS.txt" << endl; 
-			cout << "Therefore no chnages were made to the list of rentals" << endl; 
+			cout << "ERROR! could not open file named MODS.txt" << endl;
+			cout << "Therefore no chnages were made to the list of rentals" << endl;
 		}
 
 		else
@@ -696,21 +769,235 @@ void modifyRental(string MainMenuChoice, residence *& topOfList, residence *& en
 			{
 				modsFile >> phoneNumber >> plusOrMinus >> byHowMuch;
 
-				cout << fixed << showpoint << setprecision(2);
-				cout << "------------" << endl; 
-				cout << "Phone  : " << phoneNumber << endl; 
-				cout << "+ or - : " << plusOrMinus << endl;
-				cout << "bhm    : " << byHowMuch << endl;
+				cout << fixed << showpoint << setprecision(precisionAmount);
+
+				//cout << "Phone  : " << phoneNumber << endl;	// debug line
+				//cout << "+ or - : " << plusOrMinus << endl;	// debug line
+				//cout << "bhm    : " << byHowMuch << endl;		// debug line
+
+				residence *here = topOfList;      // pointer, initialized to top node 
+
+				while (here != NULL)
+				{
+					
+					if (here->phoneNumber == phoneNumber)
+					{
+
+						if (plusOrMinus == '+')
+						{
+							if (here->monthlyRent + byHowMuch >= MAX_RENT)
+							{
+								cout << here->phoneNumber << setw(widthValue) << "Error! rent would be >= " << MAX_RENT << endl;
+							}
+
+							else
+							{
+								here->monthlyRent = (here->monthlyRent + byHowMuch);
+								cout << here->phoneNumber << setw(widthValue) << here->monthlyRent << endl;
+								ModCounter++;
+							}
+						}
+
+						if (plusOrMinus == '-')
+						{
+							if (here->monthlyRent - byHowMuch <= 0)
+							{
+								cout << here->phoneNumber << setw(widthValue) << "Error! rent would be <= 0" << endl;
+							}
+
+							else
+							{
+								here->monthlyRent = (here->monthlyRent - byHowMuch);
+								cout << here->phoneNumber << setw(widthValue) << here->monthlyRent << endl;
+								ModCounter++;
+							}
+						}
+					}
+
+						here = here->next;     // If not, move to next node in list 
+
+				}
+
+			} while (modsFile);
+
+			if (ModCounter > 0)
+			{
+				cout << "Total Modifictaions made = " << ModCounter << endl;
 			}
 
-			while (modsFile);
+			else
+			{
+				cout << "The file MODS.txt does indeed exist." << endl;
+				cout << "However it does not contain any usable information" << endl;
+				cout << "Toal chnages made = " << ModCounter << " Womp Womp." << endl;
+			}
+
+			modsFile.close();
+		}
+	}	 
+}
+
+void exitProgram(string MainMenuChoice, residence *& topOfList, residence *& endOfList)
+{
+	if (MainMenuChoice == "X")
+	{
+		ofstream data2Save;
+
+		string saveDataResponse;
+		string overWriteDataResponse;
+		string outputFileName;
+		int errorCounter; 
+
+		do
+		{
+
+			cout << "Wait! Before you go,would you like to save any modification you may have made" << endl;
+			cout << "Enter your choice as Y = yes, N = No : ";
+			cin >> saveDataResponse;
+			saveDataResponse = convert2UpperCase(saveDataResponse);
+
+			if ((saveDataResponse != "Y") && (saveDataResponse != "N"))
+				
+			{
+				cout << endl;
+				cout << "ERROR! Unrecognized input, please try again." << endl;
+				cout << endl;
+			}
+
+		} while ((saveDataResponse != "Y") && (saveDataResponse != "N"));
+
+
+		if (saveDataResponse == "Y")
+		{
+
+			do
+			{
+				cout << endl;
+				cout << "Plese enter a file name for the data you wish to save" << endl;
+				cout << "Lets make things simple...and remember to end file name with .txt" << endl;
+				cout << "Enter File Name Here :";
+				cin.clear();
+				getline(cin >> ws, outputFileName);
+
+				outputFileName = convert2UpperCase(outputFileName);
+				
+
+			} while (checkFileExt(outputFileName) != true);
+
+			if (does_file_exist(outputFileName) == true)
+			{
+				do
+				{
+					errorCounter = 0;
+					cout << "Warning your are about to overwrite existing file named  " << outputFileName << endl;
+					cout << "Are you 100% sure this is what you want to do" << endl;
+					cout << "Enter your choice as Y = yes, N = No : ";
+					cin >> overWriteDataResponse;
+					overWriteDataResponse = convert2UpperCase(overWriteDataResponse);
+
+					if ((overWriteDataResponse != "Y") && (overWriteDataResponse != "N"))
+
+					{
+						cout << endl;
+						cout << "ERROR! Unrecognized input, please try again." << endl;
+						errorCounter++;
+						cout << endl;
+					}
+
+				} while (errorCounter > 0);
+
+				if (overWriteDataResponse == "Y")
+				{
+					cout << endl;
+					cout << "Warning, File will be overwritten. ";
+
+					data2Save.open(outputFileName.c_str());     // open file for writing
+
+					residence *here = topOfList;      // pointer, initialized to top node 
+
+					while (here != NULL)
+					{
+						data2Save << here->phoneNumber << " " << here->monthlyRent << " " << here->rented << endl;
+						here = here->next;
+					}
+
+					cout << "Data successfully Exported to file named " << outputFileName << endl;
+					cout << "Thank you, come again!" << endl;
+					data2Save.close();     // close output file
+					
+				}
+
+				else if (overWriteDataResponse == "N")
+				{
+					cout << endl;
+					cout << "Okay Enter a different file name here: ";
+					cin.clear();
+					getline(cin >> ws, outputFileName);
+					outputFileName = convert2UpperCase(outputFileName);
+
+					data2Save.open(outputFileName.c_str());     // open file for writing
+					
+					residence *here = topOfList;      // pointer, initialized to top node 
+
+					while (here != NULL)
+					{
+						data2Save << here->phoneNumber << " " << here->monthlyRent << " " << here->rented << endl;
+						here = here->next;
+					}
+
+					cout << "Data successfully Exported to file named " << outputFileName << endl;
+					cout << "Thank you, come again!" << endl; 
+					data2Save.close();     // close output file
+				}
+
+			}
 
 		}
+	}
 
+}
 
+bool checkFileExt(string fileName2check)
+{
+
+	int length = fileName2check.length();
+	bool isFileExtGood;
+
+	if ((fileName2check[length - TXT_DOT_LOCATION] == '.') && (fileName2check[length - TXT_T1_LOCATION] == 'T') &&
+		(fileName2check[length - TXT_X_LOCATION] == 'X') && (fileName2check[length - TXT_T2_LOCATION] == 'T'))
+	{
+		isFileExtGood = true; 
 
 	}
 
+	else
+	{
+		isFileExtGood = false;
+		cout << endl; 
+		cout << "Error! File name extention does not end with .txt" << endl; 
+		cout << "Please Try again." << endl; 
 
-	 
+	}
+
+	return isFileExtGood;
 }
+
+bool does_file_exist(string fileName)
+{
+
+	bool fileReadable;
+	ifstream infile(fileName);
+
+	if (infile)
+	{
+		fileReadable = true;
+	}
+
+	else
+	{
+		fileReadable = false; 
+	}
+
+	return fileReadable; 
+}
+
