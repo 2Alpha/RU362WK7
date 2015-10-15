@@ -19,6 +19,7 @@
 //				 GetMonthlyRent - Gets rent via user input
 //				 GetMonthlyRent - Gets rental status via user input
 //				 does_file_exist - Checks to see if file specified exists with home directory 
+//				 checkFile_Ext - Varifies output file has .txt extention
 //***************************************************************************
 
 #include <iostream> 
@@ -63,7 +64,7 @@ void showRentals(string MainMenuChoice, residence *& topOfList, residence *& end
 void AddRentals2Array(string MainMenuChoice, residence *& topOfList, residence *& endOfList);
 void deleteARental(string MainMenuChoice, residence *& topOfList);
 void modifyRental(string MainMenuChoice, residence *& topOfList, residence *& endOfList);
-void exitProgram(string MainMenuChoice, residence *& topOfList, residence *& endOfList);
+void exitProgram(string MainMenuChoice, residence *& topOfList);
 
 void displayAptPhoneNumbers(residence *& topOfList);
 
@@ -98,7 +99,7 @@ int main()
 		AddRentals2Array (MainMenuChoice, topOfList, endOfList);
 		deleteARental (MainMenuChoice, topOfList);
 		modifyRental(MainMenuChoice, topOfList, endOfList);
-		exitProgram(MainMenuChoice, topOfList, endOfList);
+		exitProgram(MainMenuChoice, topOfList);
 	}
 	while (MainMenuChoice != "X");			// While user input not equal "X" 
 
@@ -722,6 +723,14 @@ void deleteARental(string MainMenuChoice, residence *& topOfList)
 	}
 
 }
+
+//*************************************************************************
+//  FUNCTION:	  displayAptPhoneNumbers
+//  DESCRIPTION:  Displays a list of all rental phone numbers on file
+//  INPUT:        Parameters:  - topOfList - Top of linked List	
+//
+//  Return:		  None
+//*************************************************************************
 void displayAptPhoneNumbers(residence *& topOfList)
 {
 	int precisionAmount = 2;
@@ -742,6 +751,7 @@ void displayAptPhoneNumbers(residence *& topOfList)
 
 	cout << endl; 
 }
+
 
 void modifyRental(string MainMenuChoice, residence *& topOfList, residence *& endOfList)
 {
@@ -837,7 +847,16 @@ void modifyRental(string MainMenuChoice, residence *& topOfList, residence *& en
 	}	 
 }
 
-void exitProgram(string MainMenuChoice, residence *& topOfList, residence *& endOfList)
+//**************************************************************************
+//  FUNCTION:       exitProgram
+//  DESCRIPTION:    Allows user to save data and or exit program 
+//  INPUT			Parameters - MainMenuChoice - Main Menu Choice
+//							   - topOfList - Top of linked List
+//							   - endOfList - End of linked list
+//
+//  Return:			None
+//**************************************************************************
+void exitProgram(string MainMenuChoice, residence *& topOfList)
 {
 	if (MainMenuChoice == "X")
 	{
@@ -957,10 +976,17 @@ void exitProgram(string MainMenuChoice, residence *& topOfList, residence *& end
 
 }
 
+//**************************************************************************
+//  FUNCTION:       checkFileExt
+//  DESCRIPTION:    Varifies output file has .txt extention
+//  INPUT			Parameters - fileName2check - File Name to check
+//
+//  Return:			bool - isFileExtGood - is file good 
+//*************************************************************************
 bool checkFileExt(string fileName2check)
 {
 
-	int length = fileName2check.length();
+	int length = fileName2check.length();			// length of file name
 	bool isFileExtGood;
 
 	if ((fileName2check[length - TXT_DOT_LOCATION] == '.') && (fileName2check[length - TXT_T1_LOCATION] == 'T') &&
@@ -982,22 +1008,29 @@ bool checkFileExt(string fileName2check)
 	return isFileExtGood;
 }
 
+//**************************************************************************
+//  FUNCTION:       does_file_exist
+//  DESCRIPTION:    Checks to see if file specified exists with home directory 
+//  INPUT			Parameters - fileName - File Name
+//
+//  Return:			bool - isFileReadable - is file readable 
+//*************************************************************************
 bool does_file_exist(string fileName)
 {
 
-	bool fileReadable;
+	bool isFileReadable;
 	ifstream infile(fileName);
 
 	if (infile)
 	{
-		fileReadable = true;
+		isFileReadable = true;
 	}
 
 	else
 	{
-		fileReadable = false; 
+		isFileReadable = false; 
 	}
 
-	return fileReadable; 
+	return isFileReadable; 
 }
 
